@@ -3,6 +3,17 @@ from typing import Optional
 from datetime import datetime
 from app.models import RoleEnum, TaskStatusEnum
 
+# ---------------- User Schemas ----------------
+class CreatorInfo(BaseModel):
+    id: int
+    uuid: Optional[str] = None
+    name: str
+    username: str
+    email: EmailStr
+
+    class Config:
+        orm_mode = True
+
 class UserCreate(BaseModel):
     name: str
     username: str
@@ -12,29 +23,32 @@ class UserCreate(BaseModel):
 
 class UserResponse(BaseModel):
     id: int
+    uuid: Optional[str] = None
     name: str
     username: str
     email: EmailStr
     role: RoleEnum
-    manager_id: Optional[int]
-    created_at: datetime
+    created_by: Optional[CreatorInfo] = None  # ✅ nested creator
+    created_at: Optional[datetime] = None
 
     class Config:
         orm_mode = True
 
+# ---------------- Task Schemas ----------------
 class TaskCreate(BaseModel):
     title: str
-    description: Optional[str]
+    description: Optional[str] = None
     assigned_to_id: int
+    assigned_by_id: Optional[int] = None
 
 class TaskUpdate(BaseModel):
     status: TaskStatusEnum
-    hours_spent: Optional[float]
+    hours_spent: Optional[float] = 0.0
 
 class TaskResponse(BaseModel):
     id: int
     title: str
-    description: Optional[str]
+    description: Optional[str] = None
     assigned_to_id: int
     assigned_by_id: int
     status: TaskStatusEnum
@@ -45,6 +59,7 @@ class TaskResponse(BaseModel):
     class Config:
         orm_mode = True
 
+# ---------------- Task History ----------------
 class TaskHistoryResponse(BaseModel):
     id: int
     task_id: int

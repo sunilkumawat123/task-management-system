@@ -3,7 +3,7 @@ from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from app.models import User, RoleEnum
+from app.models import User, RoleEnum, RevokedToken
 import os
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -18,6 +18,10 @@ def get_db():
         db.close()
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    # Check if token is revoked
+    if db.query(RevokedToken).filter(RevokedToken.token == token).first():
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has been revoked")
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -30,6 +34,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             raise credentials_exception
     except JWTError:
         raise credentials_exception
+
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise credentials_exception

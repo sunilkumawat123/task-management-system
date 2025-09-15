@@ -8,18 +8,25 @@ from app.dependencies import get_db, admin_required
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 @router.post("/create_manager", response_model=UserResponse)
-def create_manager(user: UserCreate, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
+def create_manager(
+    user: UserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(admin_required)
+):
     if user.role != RoleEnum.manager:
         raise HTTPException(status_code=400, detail="Role must be manager")
-    existing = db.query(User).filter((User.username==user.username)|(User.email==user.email)).first()
+
+    existing = db.query(User).filter((User.username==user.username) | (User.email==user.email)).first()
     if existing:
         raise HTTPException(status_code=400, detail="Username or email already exists")
+
     db_user = User(
         name=user.name,
         username=user.username,
         email=user.email,
         password_hash=hash_password(user.password),
-        role=RoleEnum.manager
+        role=RoleEnum.manager,
+        created_by_id=current_user.id  # ✅ set created_by_id
     )
     db.add(db_user)
     db.commit()

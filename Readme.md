@@ -61,8 +61,7 @@ cd task-management-system
 
 2️⃣ Create & Activate Virtual Environment
 
-bash
-Copy code
+
 python3 -m venv venv
 source venv/bin/activate      # macOS / Linux
 # OR
@@ -70,8 +69,6 @@ venv\Scripts\activate         # Windows
 3️⃣ Install Dependencies
 
 
-bash
-Copy code
 
 
 pip install --upgrade pip
@@ -103,8 +100,6 @@ This project uses Alembic for schema migrations.
 
 1️⃣ Initialize Alembic (only once per project)
 
-bash
-Copy code
 
 
 alembic init alembic
@@ -118,28 +113,24 @@ alembic revision --autogenerate -m "initial migration"
 
 3️⃣ Apply Migrations
 
-bash
-Copy code
+
 alembic upgrade head
 
 4️⃣ Check Current Migration
 
-bash
-Copy code
+
 alembic current
 
 5️⃣ Downgrade (if needed)
 
-bash
-Copy code
+
 alembic downgrade -1
 Tip: Run migrations every time you change your models so your database schema stays in sync.
 
 👑 Superadmin Setup
 Before running the server, create the superadmin account:
 
-bash
-Copy code
+
 python create_superadmin.py
 If needed, modify create_superadmin.py to update credentials.
 
@@ -150,8 +141,7 @@ Password --> admin123
 🚀 Run the Application
 Start the server with live reload:
 
-bash
-Copy code
+
 uvicorn main:app --reload
 Your app will be available at: http://127.0.0.1:8000
 

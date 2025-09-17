@@ -5,7 +5,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-
+from jose import jwt, JWTError
+from app.auth import SECRET_KEY, ALGORITHM
 from app.database import Base, engine
 from app.models import User, RoleEnum
 from app.auth import verify_password, create_access_token
@@ -66,7 +67,7 @@ def login_form(request: Request, username: str = Form(...), password: str = Form
     elif user.role == RoleEnum.manager:
         redirect_url = "/manager/dashboard"
     else:
-        redirect_url = "/employee/tasks/html"
+        redirect_url = "/employee/dashboard"
 
     response = RedirectResponse(url=redirect_url, status_code=303)
     # set httponly cookie so browser forms can authenticate HTML pages
@@ -83,3 +84,24 @@ def show_login_page(request: Request):
 def read_root():
     # Redirect browser root to login page as the first route
     return RedirectResponse(url="/login")
+
+
+
+@app.middleware("http")
+async def add_current_user_to_request(request: Request, call_next):
+    """Middleware to decode JWT cookie and attach user object to request.state"""
+    token = request.cookies.get("access_token")
+    request.state.user = None
+    if token:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username = payload.get("sub")
+            if username:
+                db = next(get_db())
+                user = db.query(User).filter(User.username == username).first()
+                request.state.user = user
+        except JWTError:
+            pass  # ignore expired/invalid token
+    response = await call_next(request)
+    return response
+

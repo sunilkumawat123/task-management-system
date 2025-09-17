@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}All Tasks · Admin · TaskFlow{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>All Tasks</h1>
+  <a class="btn" href="/admin/dashboard">Admin</a>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Task List</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Task ID</th>
+          <th>Title</th>
+          <th>Assigned By (Manager)</th>
+          <th>Assigned To (Employee)</th>
+          <th>Status</th>
+          <th>Hours</th>
+          <th>Created</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if tasks %}
+          {% for t in tasks %}
+          <tr>
+            <td>{{ t.id }}</td>
+            <td>{{ t.title }}</td>
+            <td>{{ t.manager_name }}</td>
+            <td>{{ t.assigned_to_name }}</td>
+            <td>{{ t.status.value }}</td>
+            <td>{{ t.hours_spent }}</td>
+            <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ t.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="7" class="text-center">No tasks found.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

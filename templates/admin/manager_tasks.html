@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Tasks · {{ manager.name }} · TaskFlow{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Tasks Assigned by {{ manager.name }}</h1>
+  <div class="actions">
+    <a href="/admin/manager/{{ manager.id }}/html" class="btn">Back to Manager</a>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>All Tasks</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Assigned To</th>
+          <th>Status</th>
+          <th>Hours Spent</th>
+          <th>Created</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if tasks %}
+          {% for t in tasks %}
+          <tr>
+            <td>{{ t.title }}</td>
+            <td>{{ t.assigned_to_name }}</td>
+            <td>{{ t.status.value }}</td>
+            <td>{{ t.hours_spent }}</td>
+            <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ t.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" class="text-center">No tasks assigned by this manager yet.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

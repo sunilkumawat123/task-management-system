@@ -16,10 +16,23 @@
 <body>
   <header class="tf-header">
     <div class="container header-inner">
-      <a class="brand" href="/">
-        <img src="{{ url_for('static', path='images/logo.svg') }}" alt="TaskFlow Logo" width="28" height="28"/>
-        <span>TaskFlow</span>
-      </a>
+     <a class="brand" 
+   href="{% if user %}
+            {% if user.role.value == 'admin' %}
+                /admin/dashboard
+            {% elif user.role.value == 'manager' %}
+                /manager/dashboard
+            {% elif user.role.value == 'employee' %}
+                /employee/dashboard
+            {% else %}
+                /
+            {% endif %}
+        {% else %}
+            /
+        {% endif %}">
+    <span>TaskFlow</span>
+</a>
+
       <nav class="primary-nav" aria-label="Primary">
         <ul>
           

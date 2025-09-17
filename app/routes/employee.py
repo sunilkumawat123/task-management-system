@@ -12,34 +12,10 @@ templates = Jinja2Templates(directory="templates")  # Use top-level templates di
 
 # -------------------- API Routes --------------------
 
-@router.get("/tasks", response_model=list[TaskResponse])
-def view_tasks(db: Session = Depends(get_db), current_user: User = Depends(employee_required)):
-    tasks = db.query(Task).filter(Task.assigned_to_id == current_user.id).all()
-    return tasks
-
-@router.put("/update_task/{task_id}", response_model=TaskResponse)
-def update_task(task_id: int, update: TaskUpdate, db: Session = Depends(get_db), current_user: User = Depends(employee_required)):
-    task = db.query(Task).filter(Task.id == task_id, Task.assigned_to_id == current_user.id).first()
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    history = TaskHistory(
-        task_id=task.id,
-        updated_by_id=current_user.id,
-        status_before=task.status,
-        status_after=update.status,
-        hours_spent=update.hours_spent or task.hours_spent
-    )
-    task.status = update.status
-    if update.hours_spent is not None:
-        task.hours_spent = update.hours_spent
-    db.add(history)
-    db.commit()
-    db.refresh(task)
-    return task
 
 # -------------------- HTML Routes --------------------
 
-@router.get("/tasks/html", response_class=HTMLResponse)
+@router.get("/dashboard", response_class=HTMLResponse)
 def tasks_html(request: Request, db: Session = Depends(get_db), current_user: User = Depends(employee_required)):
     tasks = db.query(Task).filter(Task.assigned_to_id == current_user.id).all()
     return templates.TemplateResponse(
@@ -56,6 +32,11 @@ def update_task_form(task_id: int, request: Request, db: Session = Depends(get_d
         "employee/update_task.html",
         {"request": request, "task": task, "user": current_user}
     )
+    
+    
+    
+    
+    
 
 @router.post("/update_task/html/{task_id}")
 def update_task_html(
@@ -68,21 +49,31 @@ def update_task_html(
 ):
     task = db.query(Task).filter(Task.id == task_id, Task.assigned_to_id == current_user.id).first()
     if not task:
-        return RedirectResponse(url="/employee/tasks/html")
-    
+        return RedirectResponse(url="/employee/dashboard")
+
+    # ✅ Store old values for history
+    old_status = task.status
+    old_hours = task.hours_spent or 0.0
+
+    # ✅ Add hours instead of overwriting
+    if hours_spent is not None:
+        task.hours_spent = old_hours + hours_spent
+
+    # ✅ Update status
+    task.status = status
+
+    # ✅ Save to history
     history = TaskHistory(
         task_id=task.id,
         updated_by_id=current_user.id,
-        status_before=task.status,
+        status_before=old_status,
         status_after=status,
-        hours_spent=hours_spent or task.hours_spent
+        hours_spent=hours_spent or 0.0  # just log hours added this time
     )
-    task.status = status
-    if hours_spent is not None:
-        task.hours_spent = hours_spent
+
     db.add(history)
     db.commit()
-    return RedirectResponse(url="/employee/tasks/html", status_code=303)
+    return RedirectResponse(url="/employee/dashboard", status_code=303)
 
 @router.get("/task_history/html", response_class=HTMLResponse)
 def task_history_html(request: Request, db: Session = Depends(get_db), current_user: User = Depends(employee_required)):

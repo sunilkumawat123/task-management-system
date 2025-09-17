@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Task Reassign History · Task Management System{% endblock %}
+{% block title %}Task Reassign History · TaskFlow{% endblock %}
 
 {% block content %}
 <section class="page-header">
@@ -31,7 +31,7 @@
           <td>{{ it.reassign.timestamp }}</td>
           <td>
             {% if it.task %}
-              <a href="/manager/task/{{ it.task.id }}/html" class="link">#{{ it.task.id }} · {{ it.task.title }}</a>
+            {{ it.task.id }} · {{ it.task.title }}</a>
             {% else %}
               #{{ it.reassign.task_id }}
             {% endif %}

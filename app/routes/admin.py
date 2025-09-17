@@ -9,17 +9,43 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
 from fastapi.responses import HTMLResponse, RedirectResponse
 
+
+
+
+
+
+
+
+
+
+
+
+
 # Use relative path from main.py
 templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # ---------------- Admin Dashboard (HTML) ----------------
+
 @router.get("/dashboard", response_class=HTMLResponse)
 def admin_dashboard(request: Request, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
     total_managers = db.query(User).filter(User.role == RoleEnum.manager).count()
     total_employees = db.query(User).filter(User.role == RoleEnum.employee).count()
-    total_tasks = 0  # update later when Task model is ready
-    # Recent managers (latest 5)
+    total_tasks = db.execute(text("SELECT COUNT(*) FROM tasks")).scalar()  # raw SQL example
     recent_managers = db.query(User).filter(User.role == RoleEnum.manager).order_by(User.created_at.desc()).limit(5).all()
     # compute team sizes using ORM (users reference their creator via created_by_id)
     for m in recent_managers:
@@ -29,7 +55,6 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db), current_use
             cnt = 0
         setattr(m, "team_size", int(cnt or 0))
     # Simple empty activity placeholder until activity tracking exists
-    activity = []
 
     return templates.TemplateResponse(
         "admin/dashboard.html",
@@ -39,16 +64,31 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db), current_use
             "total_employees": total_employees,
             "total_tasks": total_tasks,
             "recent_managers": recent_managers,
-            "activity": activity,
             "user": current_user
         }
     )
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 # ---------------- List Managers (HTML) ----------------
 @router.get("/managers/html", response_class=HTMLResponse)
 def list_managers_html(request: Request, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
     managers = db.query(User).filter(User.role == RoleEnum.manager).all()
-    # compute team size per manager using ORM
+
     for m in managers:
         try:
             cnt = db.query(User).filter(User.created_by_id == m.id).count()
@@ -61,25 +101,168 @@ def list_managers_html(request: Request, db: Session = Depends(get_db), current_
         {"request": request, "managers": managers, "user": current_user}
     )
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # ---------------- View Manager Details (HTML) ----------------
 @router.get("/manager/{manager_id}/html", response_class=HTMLResponse)
 def view_manager_html(manager_id: int, request: Request, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
+    from app.models import Task, User
+
+    # 1. Fetch manager
     manager = db.query(User).filter(User.id == manager_id, User.role == RoleEnum.manager).first()
     if not manager:
         raise HTTPException(status_code=404, detail="Manager not found")
-    # load employees for this manager using ORM so template can access attributes
-    try:
-        employees = db.query(User).filter(User.created_by_id == manager.id).order_by(User.created_at.desc()).all()
-    except Exception:
-        employees = []
-    # simple placeholder activity until activity tracking exists
+
+    # 2. Fetch employees created by this manager
+    employees = db.query(User).filter(User.created_by_id == manager.id).order_by(User.created_at.desc()).all()
+
+    # 3. Fetch tasks assigned by this manager
+    tasks = db.query(Task).filter(Task.assigned_by_id == manager.id).order_by(Task.created_at.desc()).all()
+
+    # Add assigned_to_name so template can show employee names easily
+    for t in tasks:
+        employee = db.query(User).filter(User.id == t.assigned_to_id).first()
+        t.assigned_to_name = employee.name if employee else "Unassigned"
+
+    return templates.TemplateResponse(
+        "admin/manager_detail.html",
+        {
+            "request": request,
+            "manager": manager,
+            "employees": employees,
+            "tasks": tasks,
+            "user": current_user,
+            "activity": []  # you can remove this if not using activity anymore
+        }
+    )
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+@router.get("/tasks/html", response_class=HTMLResponse)
+def view_all_tasks_html(request: Request, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
+    from app.models import Task, User
+    tasks = db.query(Task).order_by(Task.created_at.desc()).all()
+
+    for t in tasks:
+        try:
+            manager = db.query(User).filter(User.id == t.assigned_by_id).first()
+            employee = db.query(User).filter(User.id == t.assigned_to_id).first()
+        except Exception:
+            manager = None
+            employee = None
+        setattr(t, "manager_name", manager.name if manager else "Unknown")
+        setattr(t, "assigned_to_name", employee.name if employee else "Unassigned")
+
+    return templates.TemplateResponse(
+        "admin/all_tasks.html",
+        {"request": request, "tasks": tasks, "user": current_user}
+    )
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # ---------------- View Manager Details (HTML) ----------------
+@router.get("/manager/{manager_id}/html", response_class=HTMLResponse)
+def view_manager_html(manager_id: int, request: Request, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
+    from app.models import Task, User
+    manager = db.query(User).filter(User.id == manager_id, User.role == RoleEnum.manager).first()
+    if not manager:
+        raise HTTPException(status_code=404, detail="Manager not found")
+
+    # Load employees
+    employees = db.query(User).filter(User.created_by_id == manager.id).order_by(User.created_at.desc()).all()
+
+    # Load tasks assigned by this manager
+    tasks = db.query(Task).filter(Task.assigned_by_id == manager.id).order_by(Task.created_at.desc()).all()
+    for t in tasks:
+        employee = db.query(User).filter(User.id == t.assigned_to_id).first()
+        setattr(t, "assigned_to_name", employee.name if employee else "Unassigned")
+
     activity = []
 
     return templates.TemplateResponse(
-        # template file in repo is `templates/admin/manager_detail.html`
-    "admin/manager_detail.html",
-    {"request": request, "manager": manager, "employees": employees, "user": current_user, "activity": activity}
+        "admin/manager_detail.html",
+        {
+            "request": request,
+            "manager": manager,
+            "employees": employees,
+            "tasks": tasks,
+            "user": current_user,
+            "activity": activity
+        }
+        
+        
     )
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
 
 
 # ---------------- Task Reassign History (HTML) ----------------
@@ -111,6 +294,32 @@ def reassign_history_html(request: Request, db: Session = Depends(get_db), curre
         "admin/reassign_history.html",
         {"request": request, "items": display, "user": current_user}
     )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ---------------- Create Manager (HTML Form) ----------------
 @router.get("/create_manager/html", response_class=HTMLResponse)
@@ -153,7 +362,26 @@ def create_manager_html(request: Request, name: str = Form(...), username: str =
         )
     return RedirectResponse(url="/admin/managers/html", status_code=303)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # ---------------- Delete Manager ----------------
+
 @router.get("/manager/{manager_id}/delete")
 def delete_manager(manager_id: int, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
     manager = db.query(User).filter(User.id == manager_id, User.role == RoleEnum.manager).first()
@@ -162,58 +390,3 @@ def delete_manager(manager_id: int, db: Session = Depends(get_db), current_user:
     db.delete(manager)
     db.commit()
     return RedirectResponse(url="/admin/managers/html", status_code=303)
-
-
-# ---------------- Admin JSON API endpoints ----------------
-@router.get("/managers", response_model=list)
-def api_list_managers(db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
-    managers = db.query(User).filter(User.role == RoleEnum.manager).all()
-    # return minimal JSON-friendly dicts
-    return [{"id": m.id, "name": m.name, "email": m.email, "created_at": str(m.created_at)} for m in managers]
-
-
-@router.post("/create_manager")
-def api_create_manager(user: UserCreate, db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
-    existing = db.query(User).filter((User.username == user.username) | (User.email == user.email)).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Username or email already exists")
-    db_user = User(
-        name=user.name,
-        username=user.username,
-        email=user.email,
-        password_hash=hash_password(user.password),
-        role=RoleEnum.manager,
-        created_by_id=current_user.id
-    )
-    try:
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Username or email already exists")
-
-    return {"id": db_user.id, "name": db_user.name, "email": db_user.email}
-
-
-@router.get("/reassign_history")
-def api_reassign_history(db: Session = Depends(get_db), current_user: User = Depends(admin_required)):
-    try:
-        from app.models import TaskReassign, Task
-        rows = db.query(TaskReassign).order_by(TaskReassign.timestamp.desc()).limit(500).all()
-    except Exception:
-        rows = []
-    out = []
-    for r in rows:
-        task = db.query(Task).filter(Task.id == r.task_id).first()
-        out.append({
-            "id": r.id,
-            "task_id": r.task_id,
-            "task_title": task.title if task else None,
-            "previous_assignee_id": r.previous_assignee_id,
-            "new_assignee_id": r.new_assignee_id,
-            "reassigned_by_id": r.reassigned_by_id,
-            "reason": r.reason,
-            "timestamp": str(r.timestamp)
-        })
-    return out

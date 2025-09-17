@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Reassign Task · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Reassign Task</h1>
+</section>
+
+<form id="reassignTaskForm" action="/manager/reassign_task/html" method="post" class="form-grid" novalidate>
+  <div class="form-row">
+    <label for="task_id">Task</label>
+    <select id="task_id" name="task_id" required>
+      {% for t in tasks %}
+      <option value="{{ t.id }}">#{{ t.id }} · {{ t.title }}{% if t.employee_name %} ({{ t.employee_name }}){% endif %}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="employee_id">New Assignee</label>
+    <select id="employee_id" name="employee_id" required>
+      {% for e in employees %}
+      <option value="{{ e.id }}">{{ e.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-row span-2">
+    <label for="note">Note</label>
+    <textarea id="note" name="note" rows="4" placeholder="Reason for reassignment and any context"></textarea>
+  </div>
+  <div class="form-actions">
+  <a class="btn" href="/manager/dashboard">Cancel</a>
+  <button class="btn solid" type="submit">Reassign</button>
+  </div>
+</form>
+
+<script src="{{ url_for('static', path='js/form_validation.js') }}" defer></script>
+{% endblock %}

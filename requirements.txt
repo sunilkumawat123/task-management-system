@@ -149,3 +149,6 @@ wsproto==1.0.0
 xdg==5
 xkit==0.0.0
 zipp==1.0.0
+
+# httpx is required by FastAPI TestClient in our local tests
+httpx==0.24.1

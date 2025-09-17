@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Manager · {{ manager.name }} · TaskFlow{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>{{ manager.name }}</h1>
+  <div class="actions">
+    <a class="btn" href="mailto:{{ manager.email }}">Email</a>
+  </div>
+</section>
+
+<section class="grid-3">
+  <div class="card">
+    <div class="card-header">
+      <h2>Profile</h2>
+    </div>
+    <dl class="description-list">
+      <div><dt>Name</dt><dd>{{ manager.name }}</dd></div>
+      <div><dt>Email</dt><dd>{{ manager.email }}</dd></div>
+      <div><dt>Created</dt><dd>{{ manager.created_at }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="card span-2">
+    <div class="card-header">
+      <h2>Employees</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in employees %}
+          <tr>
+            <td>{{ e.name }}</td>
+            <td>{{ e.email }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Tasks</h2>
+  </div>
+  <ul class="timeline">
+    {% for a in activity %}
+    <li><span class="time">{{ a.time }}</span><span class="event">{{ a.message }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

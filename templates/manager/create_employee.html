@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Create Employee · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Create Employee</h1>
+</section>
+
+<form id="createEmployeeForm" action="/manager/create_employee/html" method="post" class="form-grid">
+  <div class="form-row">
+    <label for="name">Full name</label>
+    <input id="name" name="name" type="text" required placeholder="Devon Lane" />
+  </div>
+  <div class="form-row">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required placeholder="devon@company.com" />
+  </div>
+  <div class="form-row">
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" required placeholder="devon" />
+  </div>
+  <div class="form-row">
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required placeholder="••••••••" />
+  </div>
+  <div class="form-actions">
+    <a class="btn" href="/manager/dashboard">Cancel</a>
+    <button class="btn solid" type="submit">Create</button>
+  </div>
+</form>
+ 
+{% endblock %}

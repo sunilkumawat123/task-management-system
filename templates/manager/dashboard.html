@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Manager Dashboard · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Manager Dashboard</h1>
+  <div class="actions">
+    <a class="btn" href="/manager/create_employee/html">Create Employee</a>
+    <a class="btn" href="/manager/assign_task/html">Assign Task</a>
+    <a class="btn" href="/manager/reassign_history/html">My Reassign Tasks</a>
+  <a class="btn" href="/manager/employees/html">My Employees</a>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <h3>My Team</h3>
+    <p class="stat">{{ stats.team_size }}</p>
+    <p class="sub">Employees</p>
+  </article>
+  <article class="stat-card">
+    <h3>Open Tasks</h3>
+    <p class="stat">{{ stats.open_tasks }}</p>
+    <p class="sub">Awaiting action</p>
+  </article>
+  <article class="stat-card">
+    <h3>Due Today</h3>
+    <p class="stat">{{ stats.due_today }}</p>
+    <p class="sub">Tasks</p>
+  </article>
+ 
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-header">
+      <h2>My Team Tasks</h2>
+      <a href="/manager/employees_tasks/html" class="link">See all</a>
+    </div>
+    <div class="table-wrap">
+      <table class="table sortable" id="teamTasks">
+        <thead>
+          <tr>
+              <th>Employee</th>
+              <th>Task</th>
+              <th>Status</th>
+              <th>Assigned</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for t in tasks %}
+          <tr>
+            <td>{{ t.assigned_to.name if t.assigned_to is defined and t.assigned_to else '—' }}</td>
+            <td>{{ t.title }}</td>
+            <td>{{ t.status }}</td>
+            <td>{{ t.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <h2>Alerts</h2>
+    </div>
+    <ul class="list gap">
+      {% for a in alerts %}
+      <li class="list-item">
+        <span class="dot {{ a.level }}" aria-hidden="true"></span>
+        <span>{{ a.message }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/dashboard.js') }}" defer></script>
+{% endblock %}

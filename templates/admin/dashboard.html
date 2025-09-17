@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Admin Dashboard</h1>
+    <div class="actions">
+  <a class="btn" href="/admin/create_manager/html">Create Manager</a>
+  <a class="btn" href="/admin/managers/html">Managers</a>
+  <a class="btn" href="/admin/reassign_history/html">Reassign History</a>
+  </div>
+</section>
+
+  <section class="stats-grid">
+  <article class="stat-card">
+    <h3>Total Managers</h3>
+    <p class="stat">{{ total_managers }}</p>
+    <p class="sub">Total managers in system</p>
+  </article>
+  <article class="stat-card">
+    <h3>Total Employees</h3>
+    <p class="stat">{{ total_employees }}</p>
+    <p class="sub">Total employees in system</p>
+  </article>
+  <article class="stat-card">
+    <h3>Open Tasks</h3>
+    <p class="stat">{{ total_tasks }}</p>
+    <p class="sub">Tasks assigned</p>
+  </article>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-header">
+      <h2>Recent Managers</h2>
+      <a href="/admin/managers/html" class="link">See all</a>
+    </div>
+    <div class="table-wrap">
+      <table class="table" id="recentManagers">
+        <thead>
+          <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Team Size</th>
+              <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+      {% for m in recent_managers %}
+          <tr>
+        <td><a href="/admin/manager/{{ m.id }}/html" class="link">{{ m.name }}</a></td>
+  <td>{{ m.email }}</td>
+  <td>{{ m.team_size }}</td>
+  <td>{{ m.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/dashboard.js') }}" defer></script>
+{% endblock %}

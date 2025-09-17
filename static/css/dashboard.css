@@ -1,0 +1,17 @@
+/* Task Management System – Dashboard Specific Styles */
+.table-toolbar input[type="search"], .page-header .actions input[type="search"] {
+  min-width: 260px;
+}
+
+.description-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; padding: 14px 16px; }
+.description-list dt { color: var(--muted); font-weight: 600; font-size: 12px; }
+.description-list dd { margin: 0; }
+
+/* Sort indicators */
+.table.sortable th { cursor: pointer; }
+.table.sortable th:is(.asc, .desc) { color: var(--text); }
+.table.sortable th.asc::after { content: "↑"; margin-left: 6px; font-size: 12px; color: var(--muted); }
+.table.sortable th.desc::after { content: "↓"; margin-left: 6px; font-size: 12px; color: var(--muted); }
+
+/* Utilities */
+.span-2 { grid-column: 1 / -1; }

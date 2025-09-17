@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Task Reassign History · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Task Reassign History</h1>
+  <div class="actions">
+    <a class="btn" href="/admin/dashboard">Back</a>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Recent Reassignments</h2>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Task</th>
+          <th>Previous</th>
+          <th>New</th>
+          <th>By</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+        <tr>
+          <td>{{ it.reassign.timestamp }}</td>
+          <td>
+            {% if it.task %}
+              <a href="/manager/task/{{ it.task.id }}/html" class="link">#{{ it.task.id }} · {{ it.task.title }}</a>
+            {% else %}
+              #{{ it.reassign.task_id }}
+            {% endif %}
+          </td>
+          <td>{{ it.previous.name if it.previous else '—' }}</td>
+          <td>{{ it.new.name if it.new else '—' }}</td>
+          <td>{{ it.by.name if it.by else '—' }}</td>
+          <td>{{ it.reassign.reason or '' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% endblock %}

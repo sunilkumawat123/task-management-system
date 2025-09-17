@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Task History · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Task History</h1>
+</section>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table" id="taskHistoryTable">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Event</th>
+          <th>By</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for h in histories %}
+          <tr>
+            <td>{{ h.timestamp }}</td>
+            <td>{{ h.status_before }} → {{ h.status_after }} (hours: {{ h.hours_spent }})</td>
+            <td>{{ h.updated_by.name if h.updated_by else '—' }}</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

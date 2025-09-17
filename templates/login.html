@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Login · Task Management System{% endblock %}
+
+{% block content %}
+<section class="auth-grid">
+  <div class="auth-panel copy">
+    <h1>Welcome back</h1>
+    <p>Sign in to manage tasks, teams, and projects with clarity and speed.</p>
+    <ul class="feature-list">
+      <li>Real‑time task tracking</li>
+      <li>Role‑based dashboards</li>
+      <li>Smart reminders and history</li>
+    </ul>
+  </div>
+  <div class="auth-panel form">
+  <!-- Form posts to HTML login endpoint which sets cookie and redirects by role -->
+  <form id="loginForm" action="/login" method="post">
+      <div class="form-row">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" required autocomplete="username" placeholder="your username" value="{{ username if username is defined else '' }}" />
+      </div>
+      <div class="form-row">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••" />
+      </div>
+      {% if error is defined %}
+      <div class="form-row error">
+        <p class="error-message">{{ error }}</p>
+      </div>
+      {% endif %}
+      <button class="btn solid w-full" type="submit">Sign in</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

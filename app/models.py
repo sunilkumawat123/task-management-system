@@ -84,3 +84,20 @@ class TaskHistory(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     updated_by = relationship("User")
+
+
+class TaskReassign(Base):
+    __tablename__ = "task_reassigns"
+
+    id = Column(Integer, primary_key=True, index=True)
+    task_id = Column(Integer, ForeignKey("tasks.id"))
+    previous_assignee_id = Column(Integer, ForeignKey("users.id"))
+    new_assignee_id = Column(Integer, ForeignKey("users.id"))
+    reassigned_by_id = Column(Integer, ForeignKey("users.id"))
+    reason = Column(String, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    task = relationship("Task", backref="reassigns")
+    previous_assignee = relationship("User", foreign_keys=[previous_assignee_id])
+    new_assignee = relationship("User", foreign_keys=[new_assignee_id])
+    reassigned_by = relationship("User", foreign_keys=[reassigned_by_id])

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Assign Task · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Assign Task</h1>
+</section>
+
+<form id="assignTaskForm" action="/manager/assign_task/html" method="post" class="form-grid">
+  <div class="form-row">
+    <label for="employee_id">Employee</label>
+    <select id="employee_id" name="employee_id" required>
+      {% for e in employees %}
+      <option value="{{ e.id }}">{{ e.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-row span-2">
+    <label for="title">Title</label>
+    <input id="title" name="title" type="text" required placeholder="Implement authentication" />
+  </div>
+  <div class="form-row span-2">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="5" placeholder="Describe the task details"></textarea>
+  </div>
+  <!-- Deadline field removed; Task model does not include a deadline column -->
+  <div class="form-actions">
+    <a class="btn" href="/manager/dashboard">Cancel</a>
+    <button class="btn solid" type="submit">Assign</button>
+  </div>
+</form>
+ 
+{% endblock %}

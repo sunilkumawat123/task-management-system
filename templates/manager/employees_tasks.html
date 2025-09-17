@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Employees' Tasks · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>Employees' Tasks</h1>
+  <div class="actions">
+    <input type="search" id="taskSearch" placeholder="Search tasks by title or employee" aria-label="Search tasks" />
+  <a class="btn" href="/manager/reassign_history/html">My Reassignments</a>
+  </div>
+</section>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="table sortable" id="employeesTasksTable">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Task</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tasks %}
+          <tr>
+            <td>{{ t.assigned_to.name if t.assigned_to is defined and t.assigned_to else '—' }}</td>
+            <td>{{ t.title }}</td>
+            <td>{{ t.status }}</td>
+            <td>{{ t.created_at }}</td>
+            <td class="table-actions">
+            <a class="btn small" href="/manager/reassign_task/html?task_id={{ t.id }}">Reassign</a>
+            <a class="btn small danger" href="/manager/task/{{ t.id }}/delete" onclick="return confirm('Delete task #{{ t.id }}?')">Delete</a>
+          </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/dashboard.js') }}" defer></script>
+{% endblock %}

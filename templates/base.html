@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>{% block title %}TaskFlow{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='images/logo.svg') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}" />
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header class="tf-header">
+    <div class="container header-inner">
+      <a class="brand" href="/">
+        <img src="{{ url_for('static', path='images/logo.svg') }}" alt="TaskFlow Logo" width="28" height="28"/>
+        <span>TaskFlow</span>
+      </a>
+      <nav class="primary-nav" aria-label="Primary">
+        <ul>
+          
+        </ul>
+      </nav>
+      <div class="header-actions">
+        {% if user %}
+        <form action="/logout" method="post" style="display:inline">
+          <button class="btn solid" type="submit">Logout</button>
+        </form>
+        {% else %}
+        <a class="btn solid" href="/login">Login</a>
+        {% endif %}
+      </div>
+    </div>
+    
+  </header>
+
+  <main class="container page-container">
+    {% block content %}{% endblock %}
+  </main>
+
+ 
+  <script src="{{ url_for('static', path='js/main.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

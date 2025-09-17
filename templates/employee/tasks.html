@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}My Tasks · Task Management System{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <h1>My Tasks</h1>
+</section>
+
+<div class="card">
+  <div class="table-toolbar">
+    <select id="statusFilter" aria-label="Filter by status">
+      <option value="all">All</option>
+      <option value="pending">Pending</option>
+      <option value="in_progress">In Progress</option>
+      <option value="completed">Completed</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table class="table sortable" id="myTasksTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Hours</th>
+          <th>Assigned</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tasks %}
+        <tr data-status="{{ t.status }}">
+          <td>{{ t.title }}</td>
+          <td>{{ t.status }}</td>
+          <td>{{ t.hours_spent }}</td>
+          <td>{{ t.created_at }}</td>
+          <td class="table-actions">
+            <a class="btn small" href="/employee/update_task/html/{{ t.id }}">Update</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/dashboard.js') }}" defer></script>
+{% endblock %}
